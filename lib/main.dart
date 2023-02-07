@@ -1,8 +1,8 @@
+import 'package:chat_with_notifications/screens/auth_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import '../firebase_options.dart';
-import '../screens/chat_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,10 +20,25 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Chat',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.pink)
+            .copyWith(background: Colors.pink)
+            .copyWith(secondary: Colors.deepPurple),
+        buttonTheme: ButtonTheme.of(context).copyWith(
+          buttonColor: Colors.pink,
+          textTheme: ButtonTextTheme.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.orangeAccent,
+        ),
+        primarySwatch: Colors.pink,
+        scaffoldBackgroundColor: Color(0xFF0A0D22),
       ),
-      home: const ChatScreen(),
+      home: const AuthScreen(),
     );
   }
 }
