@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
+  AuthForm(this.sumbitFn);
+
+  final void Function(
+    String email,
+    String password,
+    String username,
+    bool isLogin,
+    BuildContext ctx,
+  ) sumbitFn;
+
   @override
   State<AuthForm> createState() => _AuthFormState();
 }
@@ -10,6 +20,7 @@ class _AuthFormState extends State<AuthForm> {
   String _userEmail = '';
   String _userName = '';
   String _userPassword = '';
+  var _isLogin = true;
 
   void _trySubmit() {
     final isValid = _formKey.currentState!.validate();
@@ -20,6 +31,14 @@ class _AuthFormState extends State<AuthForm> {
     }
 
     _formKey.currentState!.save();
+
+    widget.sumbitFn(
+      _userEmail.trim(),
+      _userPassword.trim(),
+      _userName.trim(),
+      _isLogin,
+      context,
+    );
   }
 
   @override
@@ -36,6 +55,7 @@ class _AuthFormState extends State<AuthForm> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
+                    key: const ValueKey('email'),
                     validator: (val) {
                       if (val == null) {
                         return 'Please enter a value';
@@ -52,23 +72,26 @@ class _AuthFormState extends State<AuthForm> {
                       _userEmail = val!;
                     },
                   ),
+                  if (!_isLogin)
+                    TextFormField(
+                      key: const ValueKey('Username'),
+                      validator: (val) {
+                        if (val == null) {
+                          return 'Please enter a value';
+                        }
+                        if (val.isEmpty || val.length < 4) {
+                          return 'Please enter at least 4 chars long';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.name,
+                      decoration: const InputDecoration(labelText: 'Username'),
+                      onSaved: (val) {
+                        _userName = val!;
+                      },
+                    ),
                   TextFormField(
-                    validator: (val) {
-                      if (val == null) {
-                        return 'Please enter a value';
-                      }
-                      if (val.isEmpty || val.length < 4) {
-                        return 'Please enter at least 4 chars long';
-                      }
-                      return null;
-                    },
-                    keyboardType: TextInputType.name,
-                    decoration: const InputDecoration(labelText: 'Username'),
-                    onSaved: (val) {
-                      _userName = val!;
-                    },
-                  ),
-                  TextFormField(
+                    key: const ValueKey('Password'),
                     validator: (val) {
                       if (val == null) {
                         return 'Please enter a value';
@@ -87,10 +110,20 @@ class _AuthFormState extends State<AuthForm> {
                   const SizedBox(
                     height: 12,
                   ),
-                  ElevatedButton(onPressed: () {}, child: const Text('Login')),
+                  ElevatedButton(
+                    onPressed: _trySubmit,
+                    child: Text(_isLogin ? 'Login' : 'Signup'),
+                  ),
                   TextButton(
-                      onPressed: () {},
-                      child: const Text('Create new account')),
+                    onPressed: () {
+                      setState(() {
+                        _isLogin = !_isLogin;
+                      });
+                    },
+                    child: Text(_isLogin
+                        ? 'Create new account'
+                        : 'I already have an account'),
+                  ),
                 ],
               ),
             ),
