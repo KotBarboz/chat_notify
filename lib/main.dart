@@ -1,4 +1,6 @@
 import 'package:chat_with_notifications/screens/auth_screen.dart';
+import 'package:chat_with_notifications/screens/chat_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.pink)
-            .copyWith(background: Colors.pink)
+            .copyWith(background: Colors.pink[50])
             .copyWith(secondary: Colors.deepPurple),
         buttonTheme: ButtonTheme.of(context).copyWith(
           buttonColor: Colors.pink,
@@ -32,13 +34,25 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
         ),
+        dropdownMenuTheme: const DropdownMenuThemeData(
+            menuStyle: MenuStyle(
+                backgroundColor: MaterialStatePropertyAll(Colors.red)),
+            textStyle: TextStyle(backgroundColor: Colors.green)),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.orangeAccent,
-        ),
+            //  backgroundColor: Colors.orangeAccent,
+            ),
         primarySwatch: Colors.pink,
-        scaffoldBackgroundColor: Color(0xFF0A0D22),
+        scaffoldBackgroundColor: Colors.pink[50],
       ),
-      home: const AuthScreen(),
+      home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (ctx, userSnapshot) {
+            if (userSnapshot.hasData) {
+              return const ChatScreen();
+            }
+
+            return const AuthScreen();
+          }),
     );
   }
 }
