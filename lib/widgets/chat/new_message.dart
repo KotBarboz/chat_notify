@@ -25,8 +25,8 @@ class _NewMessageState extends State<NewMessage> {
       'text': _enteredMessage,
       'createdAt': Timestamp.now(),
       'userId': user?.uid,
-      'username': userData['username'],
-      'userImage': userData['userImage'],
+      'username': userData.data()?['username'],
+      'userImage': userData.data()?['userImage'] ?? '',
     });
     _controller.clear();
   }
@@ -41,6 +41,9 @@ class _NewMessageState extends State<NewMessage> {
           Expanded(
             child: TextField(
               controller: _controller,
+              textCapitalization: TextCapitalization.sentences,
+              autocorrect: true,
+              enableSuggestions: true,
               decoration: const InputDecoration(labelText: 'Send message...'),
               onChanged: (val) {
                 setState(() {

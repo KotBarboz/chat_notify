@@ -1,14 +1,17 @@
 import 'package:chat_with_notifications/screens/auth_screen.dart';
 import 'package:chat_with_notifications/screens/chat_screen.dart';
+import 'package:chat_with_notifications/screens/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import '../firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -37,12 +40,14 @@ Future<void> main() async {
           'Message also contained a notification: ${message.notification!.title.toString()}');
     }
   });
-  // FirebaseMessaging.onBackgroundMessage((message) async {
-  //   print('Message(1): ${message.notification!}');
-  //   return;
-  // });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  FirebaseMessaging.onMessageOpenedApp.listen((message) {
+    print(message.notification?.title);
+    return;
+  });
+  FirebaseMessaging.instance.subscribeToTopic('chat');
 
   runApp(const MyApp());
 }
@@ -58,9 +63,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return MaterialApp(
       title: 'Flutter Chat',
       debugShowCheckedModeBanner: false,
@@ -88,6 +93,10 @@ class MyApp extends StatelessWidget {
       home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (ctx, userSnapshot) {
+            if (userSnapshot.connectionState == ConnectionState.waiting) {
+              return SplashScreen();
+            }
+
             if (userSnapshot.hasData) {
               return const ChatScreen();
             }
